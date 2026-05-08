@@ -1,0 +1,82 @@
+name: PoshanEnv
+version: "1.0.0"
+description: >
+  Rural India Maternal & Child Health RL Environment.
+  An AI agent acts as a frontline health worker (ASHA/Anganwadi)
+  making triage, nutrition assessment, and escalation decisions
+  for pregnant women and children under 5 in rural India.
+  Based on WHO MUAC thresholds, IMNCI danger signs, and NHM maternal
+  risk criteria.
+
+tags:
+  - healthcare
+  - maternal-health
+  - nutrition
+  - rural-india
+  - triage
+  - openenv
+
+author: PoshanEnv Team
+license: MIT
+
+observation_space:
+  type: structured
+  description: >
+    JSON object containing patient profiles (vitals, symptoms, MUAC,
+    gestational data), household context (village, district, income,
+    distance to PHC), visit history, and a natural language message
+    describing the current situation to the agent.
+
+action_space:
+  type: structured
+  description: >
+    JSON object with action_type and task-specific fields.
+    action_type options: rank_urgency, assess_and_plan, intervene,
+    request_more_info, noop.
+
+reward:
+  type: float
+  range: [0.0, 1.0]
+  description: >
+    Graded against WHO/IMNCI/NHM clinical protocols.
+    Partial credit awarded for near-correct decisions.
+    Penalises noop and false alarms.
+
+tasks:
+  - task_id: 1
+    name: Urgency Triage
+    difficulty: easy
+    max_steps: 1
+    description: >
+      Rank 5 patients from most to least urgent.
+      Graded using Kendall Tau rank correlation against
+      WHO/NHM urgency scoring.
+
+  - task_id: 2
+    name: Dual Assessment
+    difficulty: medium
+    max_steps: 2
+    description: >
+      Simultaneously classify child malnutrition grade (SAM/MAM/Normal)
+      and maternal risk level (high/medium/low), then prescribe
+      correct interventions for both patients.
+
+  - task_id: 3
+    name: Multi-Visit Progression
+    difficulty: hard
+    max_steps: 4
+    description: >
+      Manage a household across 4 visits as condition deteriorates.
+      Detect the worsening trend and escalate at the right visit.
+      Scored on escalation timing — optimal at visit 2 or 3.
+
+endpoints:
+  reset: POST /reset
+  step:  POST /step
+  state: GET  /state
+  tasks: GET  /tasks
+
+baseline_scores:
+  task_1: 0.62
+  task_2: 0.55
+  task_3: 0.45

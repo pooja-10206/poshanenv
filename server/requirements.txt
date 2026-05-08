@@ -1,0 +1,5 @@
+fastapi>=0.111.0
+uvicorn>=0.29.0
+# Newer Pydantic provides prebuilt wheels for newer Python versions (avoids Rust build on Windows).
+pydantic>=2.11.0
+python-multipart>=0.0.9
